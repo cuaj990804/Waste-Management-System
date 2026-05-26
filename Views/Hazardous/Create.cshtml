@@ -1,0 +1,456 @@
+@model SGA.Models.HazardousWasteManifest
+
+@{
+    ViewData["Title"] = "Crear Residuo Peligroso";
+}
+
+<style>
+    .hazardous-form-shell {
+        max-width: 1200px;
+        margin: 0.5rem auto;
+        padding: 0 0.75rem;
+    }
+
+    .hazardous-form-card {
+        background: linear-gradient(180deg, #fff 0%, #fff8f8 100%);
+        border: 1px solid #f1c5c5;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(120, 18, 18, 0.08);
+        overflow: hidden;
+    }
+
+    .hazardous-form-header {
+        background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%);
+        color: #fff;
+        padding: 0.9rem 1.25rem;
+    }
+
+    .hazardous-form-header h2 {
+        margin: 0;
+        font-size: 1.45rem;
+        font-weight: 700;
+    }
+
+    .hazardous-form-header p {
+        margin: 0.2rem 0 0;
+        color: rgba(255, 255, 255, 0.88);
+        font-size: 0.92rem;
+    }
+
+    .hazardous-form-body {
+        padding: 1rem 1.25rem 1.1rem;
+    }
+
+    .form-hint {
+        margin-bottom: 0.7rem;
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    .required-label::after {
+        content: " *";
+        color: #dc2626;
+        font-weight: 700;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.85rem 1rem;
+    }
+
+    .form-full {
+        grid-column: 1 / -1;
+    }
+
+    .field-card {
+        background: #fff;
+        border: 1px solid #ead4d4;
+        border-radius: 14px;
+        padding: 0.7rem 0.85rem;
+    }
+
+    .field-card-soft {
+        background: #fff;
+        border: 1px solid #ead4d4;
+        border-radius: 14px;
+        padding: 0.8rem 0.9rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.92rem;
+        margin-bottom: 0.35rem;
+        color: #1f2937;
+    }
+
+    .form-control-custom {
+        width: 100%;
+        padding: 0.62rem 0.8rem;
+        font-size: 0.95rem;
+        border: 2px solid #d7dce2;
+        border-radius: 12px;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        background: #fff;
+    }
+
+    .form-control-custom:focus {
+        border-color: #b91c1c;
+        box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.12);
+        outline: none;
+    }
+
+    .required-input {
+        border-left: 5px solid #dc2626;
+        background: #fffdfd;
+    }
+
+    .cretib-section {
+        background: linear-gradient(180deg, #fff 0%, #fff6f6 100%);
+        border: 1px solid #efcaca;
+        border-radius: 16px;
+        padding: 0.85rem 0.9rem;
+    }
+
+    .cretib-title {
+        font-weight: 700;
+        font-size: 0.98rem;
+        margin-bottom: 0.15rem;
+        color: #7f1d1d;
+    }
+
+    .cretib-subtitle {
+        margin-bottom: 0.65rem;
+        color: #6b7280;
+        font-size: 0.87rem;
+    }
+
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.6rem;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.55rem 0.7rem;
+        border: 1px solid #f0d4d4;
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #b91c1c;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .checkbox-item label {
+        margin: 0;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: #1f2937;
+    }
+
+    .action-row {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 0.85rem;
+    }
+
+    .btn-guardar {
+        width: 100%;
+        padding: 0.68rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border-radius: 12px;
+    }
+
+    @@media (max-width: 1100px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .checkbox-group {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 640px) {
+        .hazardous-form-header,
+        .hazardous-form-body {
+            padding: 1rem;
+        }
+
+        .checkbox-group {
+            grid-template-columns: 1fr;
+        }
+
+        .action-row {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="hazardous-form-shell">
+    <div class="hazardous-form-card">
+        <div class="hazardous-form-header">
+            <h2>Registro de Residuos Peligrosos</h2>
+            <p>Captura rápida con selección visual de CRETIB.</p>
+        </div>
+
+        <div class="hazardous-form-body">
+            <p class="form-hint">Los campos marcados con <span class="text-danger">*</span> son obligatorios.</p>
+
+            <form asp-action="Create" method="post" autocomplete="off">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-grid">
+                    <div class="field-card">
+                        <label asp-for="WasteName" class="form-label required-label">Residuo</label>
+                        <input asp-for="WasteName"
+                               class="form-control-custom required-input"
+                               list="HazardousWastesList"
+                               placeholder="Escribe o selecciona..."
+                               type="search"
+                               id="WasteName"
+                               required>
+                        <datalist id="HazardousWastesList">
+                            @foreach (var waste in ViewBag.HazardousWastes as List<string>)
+                            {
+                                <option value="@waste"></option>
+                            }
+                        </datalist>
+                        <span asp-validation-for="WasteName" class="text-danger"></span>
+                    </div>
+
+                    <div class="field-card">
+                        <label asp-for="GenerationArea" class="form-label required-label">Área de generación</label>
+                        <input asp-for="GenerationArea"
+                               class="form-control-custom required-input"
+                               list="HazardousAreasList"
+                               placeholder="Escribe o selecciona..."
+                               type="search"
+                               required>
+                        <datalist id="HazardousAreasList">
+                            @foreach (var area in ViewBag.HazardousAreas as List<string>)
+                            {
+                                <option value="@area"></option>
+                            }
+                        </datalist>
+                        <span asp-validation-for="GenerationArea" class="text-danger"></span>
+                    </div>
+
+                    <div class="field-card">
+                        <label asp-for="Quantity" class="form-label required-label">Cantidad</label>
+                        <input asp-for="Quantity"
+                               class="form-control-custom required-input"
+                               type="number"
+                               step="1"
+                               min="1"
+                               required>
+                        <span asp-validation-for="Quantity" class="text-danger"></span>
+                    </div>
+
+                    <div class="field-card">
+                        <label asp-for="WeightKg" class="form-label required-label">Peso (KG)</label>
+                        <input asp-for="WeightKg"
+                               class="form-control-custom required-input"
+                               step="any"
+                               type="number"
+                               min="0.01"
+                               required>
+                        <span asp-validation-for="WeightKg" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-full">
+                        <div class="cretib-section">
+                            <div class="cretib-title">Código CRETIB</div>
+                            <div class="cretib-subtitle">Se autoselecciona según el residuo elegido.</div>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" name="Corrosive" id="Corrosive" value="true">
+                                    <label for="Corrosive">Corrosivo (C)</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" name="Reactive" id="Reactive" value="true">
+                                    <label for="Reactive">Reactivo (R)</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" name="Explosive" id="Explosive" value="true">
+                                    <label for="Explosive">Explosivo (E)</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" name="Toxic" id="Toxic" value="true">
+                                    <label for="Toxic">Tóxico (T)</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" name="Flammable" id="Flammable" value="true">
+                                    <label for="Flammable">Inflamable (I)</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" name="Biological" id="Biological" value="true">
+                                    <label for="Biological">Biológico (B)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-full">
+                        <div class="field-card-soft">
+                        <label asp-for="Comments" class="form-label">Comentarios</label>
+                        <textarea asp-for="Comments" class="form-control-custom" rows="2" placeholder="Observaciones adicionales..."></textarea>
+                        <span asp-validation-for="Comments" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-row">
+                    <button type="button" id="btnVerHistorial" class="btn btn-dark btn-guardar">Historial</button>
+                    <button type="submit" class="btn btn-danger btn-guardar">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Historial -->
+<div class="modal fade" id="historialModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Historial de Residuos Peligrosos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-0">
+                <!-- La vista parcial se cargarÃ¡ aquÃ­ -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function () {
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+            Swal.fire({
+                icon: 'success',
+                title: 'Registro guardado',
+                text: '@TempData["SuccessMessage"]',
+                confirmButtonText: 'Aceptar'
+            });
+            </text>
+        }
+
+        $('#WasteName').on('change', function () {
+            var wasteName = $(this).val().trim();
+
+            if (wasteName) {
+                $.ajax({
+                    url: '@Url.Action("GetHazardousWasteData", "Hazardous")',
+                    type: 'GET',
+                    data: { wasteName: wasteName },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#Corrosive').prop('checked', response.corrosive);
+                            $('#Reactive').prop('checked', response.reactive);
+                            $('#Explosive').prop('checked', response.explosive);
+                            $('#Toxic').prop('checked', response.toxic);
+                            $('#Flammable').prop('checked', response.flammable);
+                            $('#Biological').prop('checked', response.biological);
+                        } else {
+                            $('.checkbox-group input[type="checkbox"]').prop('checked', false);
+                        }
+                    },
+                    error: function () {
+                        console.error('Error al obtener datos del residuo');
+                        $('.checkbox-group input[type="checkbox"]').prop('checked', false);
+                    }
+                });
+            }
+        });
+
+        $('form').on('submit', function () {
+            $(this).find('input[type="hidden"][data-cretib]').remove();
+
+            ['Corrosive', 'Reactive', 'Explosive', 'Toxic', 'Flammable', 'Biological'].forEach(function (name) {
+                var checkbox = $('#' + name);
+                if (!checkbox.is(':checked')) {
+                    $('<input>')
+                        .attr('type', 'hidden')
+                        .attr('name', name)
+                        .attr('data-cretib', 'true')
+                        .val('false')
+                        .appendTo('form');
+                }
+            });
+        });
+
+        $(document).on('click', '#btnBuscar', function () {
+            var start = $('#startDate').val();
+            var end = $('#endDate').val();
+
+            $('#historialModal .modal-body').html(`
+                <div class="d-flex justify-content-center align-items-center" style="height: 200px">
+                    <div class="spinner-border text-danger" role="status"></div>
+                </div>
+            `);
+
+            $.ajax({
+                url: '/Hazardous/Historial',
+                data: { startDate: start, endDate: end },
+                type: 'GET',
+                success: function(data) {
+                    $('#historialModal .modal-body').html(data);
+                    $('#historialModal').modal('handleUpdate');
+                },
+                error: function(xhr) {
+                    console.error('Error al buscar:', xhr.responseText);
+                    $('#historialModal .modal-body').html(
+                        '<div class="alert alert-danger m-3">Error al cargar los datos</div>'
+                    );
+                }
+            });
+        });
+
+        $('#btnVerHistorial').click(function () {
+            var today = new Date().toISOString().split('T')[0];
+
+            $('#historialModal .modal-body').html(`
+                <div class="d-flex justify-content-center align-items-center" style="height: 200px">
+                    <div class="spinner-border text-danger" role="status"></div>
+                </div>
+            `);
+
+            $('#historialModal').modal('show');
+
+            $.get('/Hazardous/Historial', { startDate: today, endDate: today }, function (data) {
+                $('#historialModal .modal-body').html(data);
+                $('#historialModal').modal('handleUpdate');
+            }).fail(function() {
+                console.error('Error al cargar el historial');
+                $('#historialModal .modal-body').html(
+                    '<div class="alert alert-danger m-3">Error al cargar el historial</div>'
+                );
+            });
+        });
+
+        $('#historialModal').on('shown.bs.modal', function () {
+            $(this).modal('handleUpdate');
+        });
+    });
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

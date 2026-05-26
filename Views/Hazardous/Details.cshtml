@@ -1,0 +1,159 @@
+@model SGA.Models.HazardousWasteManifest
+
+@{
+    Layout = null;
+}
+
+<style>
+    .row-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 0;
+        transition: background-color 0.3s ease-in-out;
+    }
+
+        .row-item:hover {
+            background-color: #f5f5f5;
+            cursor: pointer;
+        }
+
+        .row-item dt,
+        .row-item dd {
+            padding: 8px;
+            flex: 1;
+        }
+
+    .cretib-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        margin: 2px;
+        border-radius: 4px;
+        font-weight: bold;
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+
+<div>
+    <dl class="row">
+        <div class="row-item">
+            <dt class="col-sm-5">Folio</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.Folio)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Nombre</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.WasteName)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Cantidad</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.Quantity)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Peso en KG</dt>
+            <dd class="col-sm-5">@Model.WeightKg?.ToString("N4")</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Características CRETIB</dt>
+            <dd class="col-sm-5">
+                @if (Model.Corrosive == true)
+                {
+                    <span class="cretib-badge">C - Corrosivo</span>
+                }
+                @if (Model.Reactive == true)
+                {
+                    <span class="cretib-badge">R - Reactivo</span>
+                }
+                @if (Model.Explosive == true)
+                {
+                    <span class="cretib-badge">E - Explosivo</span>
+                }
+                @if (Model.Toxic == true)
+                {
+                    <span class="cretib-badge">T - Tóxico</span>
+                }
+                @if (Model.Flammable == true)
+                {
+                    <span class="cretib-badge">I - Inflamable</span>
+                }
+                @if (Model.Biological == true)
+                {
+                    <span class="cretib-badge">B - Biológico-Infeccioso</span>
+                }
+                @if (Model.Corrosive != true && Model.Reactive != true && Model.Explosive != true &&
+                     Model.Toxic != true && Model.Flammable != true && Model.Biological != true)
+                {
+                    <span>Ninguna</span>
+                }
+            </dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Área de generación</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.GenerationArea)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Responsable del área generadora</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.GenerationManagerName)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Fecha de ingreso al almacén</dt>
+            <dd class="col-sm-5">@(Model.WarehouseEntryDate?.ToString("dd/MM/yyyy"))</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Fecha de salida del almacén</dt>
+            <dd class="col-sm-5">@(Model.WarehouseExitDate?.ToString("dd/MM/yyyy"))</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Número de manifiesto</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.ManifestNumber)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Entregado por</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.ManifestDeliveredBy)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Recibido por</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.ManifestReceivedBy)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Nombre del transportista</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.CollectionTransportName)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Núm. de autorización del transportista</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.CollectionTransportAuthNumber)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Nombre empresa de disposición final</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.FinalDisposalName)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Núm. de autorización disposición final</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.FinalDisposalAuthNumber)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Manifiesto sellado</dt>
+            <dd class="col-sm-5">
+                @if (Model.ManifestSealed == true)
+                {
+                    <span class="badge bg-success">Sí</span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark">No</span>
+                }
+            </dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Comentarios</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.Comments)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Fecha de creación</dt>
+            <dd class="col-sm-5">@(Model.CreatedDate?.ToString("dd/MM/yyyy HH:mm"))</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Última modificación</dt>
+            <dd class="col-sm-5">@(Model.ModifiedDate?.ToString("dd/MM/yyyy HH:mm"))</dd>
+        </div>
+    </dl>
+</div>

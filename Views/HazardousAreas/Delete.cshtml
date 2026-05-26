@@ -1,0 +1,26 @@
+@model SGA.Models.HazardousArea
+
+@{
+    ViewData["Title"] = "Eliminar";
+}
+
+<h1>Eliminar</h1>
+
+<h4>Área de residuos peligrosos</h4>
+<hr />
+<dl class="row">
+    <dt class="col-sm-2">Clave</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.AreaKey)</dd>
+    <dt class="col-sm-2">Área en GDI</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.AreaName)</dd>
+    <dt class="col-sm-2">Descripción</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.AreaDescription)</dd>
+    <dt class="col-sm-2">Activo</dt>
+    <dd class="col-sm-10">@(Model.IsActive ? "Sí" : "No")</dd>
+</dl>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="HazardousAreaId" />
+    <input type="submit" value="Eliminar" class="btn btn-danger" />
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</form>

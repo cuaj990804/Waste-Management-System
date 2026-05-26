@@ -1,0 +1,173 @@
+﻿@model IEnumerable<SGA.Models.NonHazardou>
+@{
+    Layout = null;
+    var controllerName = ViewContext.RouteData.Values["controller"]?.ToString() ?? "NonHazardous";
+    var moduleEntityLabel = ViewBag.ModuleEntityLabel as string ?? "residuo";
+    var labelTitle = ViewBag.LabelTitle as string ?? "RESIDUO";
+}
+
+
+<div class="container-fluid p-3">
+    <div class="form-group mb-3">
+        <label>Fechas</label>
+        <div class="row g-2">
+            <div class="col-md-4">
+                <input type="date" class="form-control" id="startDate" 
+                       value="@DateTime.Today.ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-md-4">
+                <input type="date" class="form-control" id="endDate" 
+                       value="@DateTime.Today.ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-primary w-100" id="btnBuscar">Buscar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped m-0">
+            <thead>
+                <tr>
+                    <th>No.Parte</th>
+                    <th>Área</th>
+                    <th>Cantidad</th>
+                    <th>Peso</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.PartNumber</td>
+                        <td>@item.AreaGdi</td>
+                        <td>@item.WasteQuantity</td>
+                        <td>@item.WasteWeight?.ToString("N4")</td>
+                        <td>@item.DateIntoWarehouse?.ToString("dd/MM/yyyy")</td>
+                        <td>@item.DateIntoWarehouse?.ToString("HH:mm")</td>
+                        <td>
+                            <button onclick="printLabelFromHistory(@item.NonHazardousId)" class="btn btn-primary">
+                                Imprimir Etiqueta
+                            </button>
+
+                        </td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+        function printCurrentLabel() {
+        // Validar que todos los campos requeridos estén completos
+        var partNumber = $('input[name="PartNumber"]').val().trim();
+        var weight = $('input[name="WasteWeight"]').val().trim();
+        var area = $('input[name="AreaGdi"]').val().trim();
+
+        if (!partNumber || !weight || !area) {
+            alert('Por favor, completa todos los campos antes de imprimir la etiqueta.');
+            return;
+        }
+
+        var weightNum = parseFloat(weight);
+        if (isNaN(weightNum) || weightNum <= 0) {
+            alert('Por favor, ingresa un peso válido mayor que 0.');
+            return;
+        }
+
+        // Obtener fecha actual
+        var currentDate = new Date().toLocaleDateString('es-ES');
+
+        // Crear URL con parámetros
+        var url = '/@controllerName/PrintLabelDirect' +
+                  '?partNumber=' + encodeURIComponent(partNumber) +
+                  '&weight=' + encodeURIComponent(weight) +
+                  '&area=' + encodeURIComponent(area) +
+                  '&date=' + encodeURIComponent(currentDate);
+
+        // Abrir ventana de impresión
+        var printWindow = window.open(url, 'printLabel',
+            'width=400,height=600,scrollbars=yes,resizable=yes');
+
+        // Verificar si la ventana se abrió correctamente
+        if (!printWindow) {
+            alert('No se pudo abrir la ventana de impresión. Verifica que no esté bloqueada por el navegador.');
+        }
+    }
+
+    // Función para imprimir etiqueta desde el historial (usando ID del registro)
+    function printLabelFromHistory(id) {
+        if (!id) {
+            alert('ID de registro no válido.');
+            return;
+        }
+
+        // Abrir ventana de impresión directamente con el ID
+        var url = '/@controllerName/PrintLabel/' + id;
+        var printWindow = window.open(url, 'printLabel',
+            'width=400,height=600,scrollbars=yes,resizable=yes');
+
+        // Verificar si la ventana se abrió correctamente
+        if (!printWindow) {
+            alert('No se pudo abrir la ventana de impresión. Verifica que no esté bloqueada por el navegador.');
+        }
+    }
+
+    // Función para mostrar vista previa de la etiqueta actual
+    function previewCurrentLabel() {
+        var partNumber = $('input[name="PartNumber"]').val().trim() || '[Número de Parte]';
+        var weight = $('input[name="WasteWeight"]').val().trim() || '[Peso]';
+        var area = $('input[name="AreaGdi"]').val().trim() || '[Área]';
+        var currentDate = new Date().toLocaleDateString('es-ES');
+
+        var previewContent = `
+            <div style="font-family: Arial, sans-serif; border: 2px solid #000; padding: 15px; max-width: 300px; margin: 20px auto; background: white;">
+                <div style="font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #000;">
+                    @labelTitle.ToUpperInvariant()
+                </div>
+                <div style="font-size: 12px; line-height: 1.5;">
+                    <div><strong>Fecha:</strong> ${currentDate}</div>
+                    <div><strong>Area:</strong> ${area}</div>
+                    <div><strong>DNo.Parte:</strong> ${partNumber}</div>
+                    <div><strong>Peso:</strong> ${weight} KG</div>
+                </div>
+                <div style="margin-top: 10px; height: 20px; background: repeating-linear-gradient(90deg, #000 0px, #000 2px, #fff 2px, #fff 4px); border: 1px solid #000;"></div>
+            </div>
+        `;
+
+        var previewWindow = window.open('', 'preview', 'width=400,height=500,scrollbars=yes');
+        previewWindow.document.write(`
+            <html>
+                <head>
+                    <title>Vista Previa - Etiqueta</title>
+                </head>
+                <body style="margin: 0; padding: 20px; background: #f5f5f5;">
+                    <h3 style="text-align: center; margin-bottom: 20px;">Vista Previa de Etiqueta</h3>
+                    ${previewContent}
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Imprimir
+                        </button>
+                        <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                            Cerrar
+                        </button>
+                    </div>
+                </body>
+            </html>
+        `);
+        previewWindow.document.close();
+    }
+</script>

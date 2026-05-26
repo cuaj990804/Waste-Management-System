@@ -1,0 +1,41 @@
+﻿@model IEnumerable<SGA.Models.StorageType>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Formas de almacenamiento</h1>
+
+<p>
+    <a asp-action="Create">Registrar nueva forma de almacenamiento</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Clave
+            </th>
+            <th>
+                Forma de almacenamiento
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.StorageKey)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StorageName)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.StorageId">Editar</a> |
+
+                <a asp-action="Delete" asp-route-id="@item.StorageId">eliminar</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

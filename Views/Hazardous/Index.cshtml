@@ -1,0 +1,499 @@
+@model IEnumerable<SGA.Models.HazardousWasteManifest>
+
+@{
+    ViewData["Title"] = "Residuos Peligrosos";
+}
+
+<link rel="stylesheet" href="~/css/buttons.css" asp-append-version="true" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    .checkbox-filter-list {
+        max-height: 180px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 0.5rem 0.75rem;
+        background: #fff;
+    }
+
+    .checkbox-filter-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .checkbox-filter-item:last-child {
+        margin-bottom: 0;
+    }
+
+</style>
+
+<h1>Residuos Peligrosos</h1>
+<table class="table" id="DataTable">
+    <thead>
+        <tr>
+            <th>Folio</th>
+            <th>Nombre del residuo</th>
+            <th>Cantidad</th>
+            <th>Peso (KG)</th>
+            <th>Código CRETIB</th>
+            <th>Área de generación</th>
+            <th>Responsable</th>
+            <th>Fecha de ingreso</th>
+            <th>Fecha de salida</th>
+            <th>No. Manifiesto</th>
+            <th>Estado</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+    </table>
+
+<!-- Modal para Detalles -->
+<div class="modal fade" id="CreateModal" tabindex="-1" role="dialog" aria-labelledby="CreateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="ModalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="saveEditBtn">Editar</button>
+                <button type="button" class="btn btn-danger" id="deleteBtn">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal para Editar -->
+<div class="modal fade" id="EditModal" tabindex="-1" aria-labelledby="EditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="EditModalLabel">Editar Residuo Peligroso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="EditModalBody"></div>
+            <div class="modal-footer">
+                <button type="submit" form="editForm" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal para Filtros -->
+<div class="modal fade" id="FilterModal" tabindex="-1" role="dialog" aria-labelledby="FilterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="FilterModalLabel">Búsqueda avanzada</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <!-- Campo para "Folio" -->
+                    <div class="form-group">
+                        <label for="Folio">Folio</label>
+                        <input class="form-control" id="Folio" name="Folio" type="text" />
+                    </div>
+
+                    <!-- Campo para "Nombre del residuo" -->
+                    <div class="form-group">
+                        <label for="WasteName">Nombre del residuo</label>
+                        <div id="WasteName" class="checkbox-filter-list">
+                            @foreach (var waste in ViewBag.HazardousWastes as List<string>)
+                            {
+                                <div class="checkbox-filter-item">
+                                    <input type="checkbox" class="waste-name-checkbox" value="@waste" id="haz_waste_@waste.GetHashCode()" />
+                                    <label for="haz_waste_@waste.GetHashCode()">@waste</label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Campo para "Área de generación" -->
+                    <div class="form-group">
+                        <label for="GenerationArea">Área de generación</label>
+                        <select id="GenerationArea" name="GenerationArea" class="form-control">
+                            <option value="">-- Seleccione un área --</option>
+                            @foreach (var area in ViewBag.HazardousAreas as List<string>)
+                            {
+                                <option value="@area">@area</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Campo para "No. Manifiesto" -->
+                    <div class="form-group">
+                        <label for="ManifestNumber">No. Manifiesto</label>
+                        <input class="form-control" id="ManifestNumber" name="ManifestNumber" type="text" />
+                    </div>
+
+                    <!-- Campo para "Manifiesto sellado" -->
+                    <div class="form-group">
+                        <label for="ManifestSealed">Manifiesto sellado</label>
+                        <select id="ManifestSealedSelect" class="form-control">
+                            <option value="" disabled selected>Seleccione una opción</option>
+                            <option value="Si">Si</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+
+                    <!-- Fecha de Ingreso -->
+                    <div class="form-group">
+                        <label for="WarehouseEntryDate">Fecha de ingreso al almacén</label>
+                        <div class="row">
+                            <div class="col">
+                                <input type="date" class="form-control" id="startDateInto">
+                            </div>
+                            <div class="col">
+                                <input type="date" class="form-control" id="endDateInto">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fecha de Salida -->
+                    <div class="form-group">
+                        <label for="WarehouseExitDate">Fecha de salida del almacén</label>
+                        <div class="row">
+                            <div class="col">
+                                <input type="date" class="form-control" id="startDateOut">
+                            </div>
+                            <div class="col">
+                                <input type="date" class="form-control" id="endDateOut">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="clearDateRange">Limpiar Filtros</button>
+                <button type="button" class="btn btn-primary" id="applyDateRange">Aplicar</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            let currentEditId = null;
+
+            function getSelectedWasteNames() {
+                return $('.waste-name-checkbox:checked').map(function () {
+                    return $(this).val();
+                }).get();
+            }
+
+            function setSelectedWasteNames(values) {
+                const selected = values || [];
+                $('.waste-name-checkbox').prop('checked', false);
+                selected.forEach(function (value) {
+                    $('.waste-name-checkbox').filter(function () {
+                        return $(this).val() === value;
+                    }).prop('checked', true);
+                });
+            }
+
+            let table = $('#DataTable').DataTable({
+                processing: true,
+                serverSide: true,
+                order: [[8, 'desc']], // Ordenar por fecha de ingreso descendente
+                "pageLength": 15,
+                "searching": false,
+                "dom": 'Bfrtip',
+                ajax: {
+                    url: '/Hazardous/GetTable',
+                    type: 'POST',
+                    data: function (d) {
+                        d.folio = $('#Folio').val();
+                        d.wasteName = getSelectedWasteNames().join('|');
+                        d.generationArea = $('#GenerationArea').val();
+                        d.manifestNumber = $('#ManifestNumber').val();
+                        d.manifestSealed = $('#ManifestSealedSelect').val();
+                        d.startDateInto = $('#startDateInto').val();
+                        d.endDateInto = $('#endDateInto').val();
+                        d.startDateOut = $('#startDateOut').val();
+                        d.endDateOut = $('#endDateOut').val();
+                    }
+                },
+                "buttons": [
+                    {
+                        text: 'Crear',
+                        className: 'btn btn-primary',
+                        action: function (e, dt, node, config) {
+                            window.location.href = '@Url.Action("Create", "Hazardous")';
+                        }
+                    },
+                    {
+                        text: 'Cat. Residuos',
+                        className: 'btn btn-info',
+                        action: function (e, dt, node, config) {
+                            window.location.href = '@Url.Action("Index", "HazardousWaste")';
+                        }
+                    },
+                    {
+                        text: 'Cat. Áreas',
+                        className: 'btn btn-warning',
+                        action: function (e, dt, node, config) {
+                            window.location.href = '@Url.Action("Index", "HazardousAreas")';
+                        }
+                    },
+                    {
+                        text: 'Filtro',
+                        className: 'btn btn-secondary btn-date-picker',
+                        action: function (e, dt, node, config) {
+                            $('#FilterModal').modal('show');
+                        }
+                    },
+                    {
+                        text: 'Excel',
+                        className: 'btn btn-success',
+                        action: function (e, dt, node, config) {
+                            exportToExcel();
+                        }
+                    }
+                ],
+                columns: [
+                    { data: 'folio' },
+                    { data: 'wasteName' },
+                    { data: 'quantity' },
+                    { data: 'weightKg' },
+                    {
+                        data: null,
+                        render: function (data, type, row) {
+                            // Construir el código CRETIB basado en las propiedades booleanas
+                            let cretib = '';
+                            if (row.corrosive) cretib += 'C';
+                            if (row.reactive) cretib += 'R';
+                            if (row.explosive) cretib += 'E';
+                            if (row.toxic) cretib += 'T';
+                            if (row.flammable) cretib += 'I';
+                            if (row.biological) cretib += 'B';
+                            return cretib || '-';
+                        }
+                    },
+                    { data: 'generationArea' },
+                    { data: 'generationManagerName' },
+                    {
+                        data: 'warehouseEntryDate',
+                        render: function (data) {
+                            if (!data) return '';
+                            const [y, m, d] = data.split('-');
+                            return `${d}/${m}/${y}`;
+                        }
+                    },
+                    {
+                        data: 'warehouseExitDate',
+                        render: function (data) {
+                            if (!data) return '';
+                            const [y, m, d] = data.split('-');
+                            return `${d}/${m}/${y}`;
+                        }
+                    },
+                    { data: 'manifestNumber' },
+                    {
+                        data: 'manifestSealed',
+                        render: function (data, type, row) {
+                            return data == false || data == null
+                                ? '<span class="badge bg-warning text-dark">Pendiente</span>'
+                                : '<span class="badge bg-success text-white">Finalizado</span>';
+                        }
+                    },
+                    {
+                        data: 'id',
+                        render: function (data, type, row, meta) {
+                            return `<button class="btn btn-dark details-btn" data-id="${data}">Detalles</button>`;
+                        },
+                        orderable: false,
+                        searchable: false
+                    }
+                ]
+            });
+
+            // Aplicar filtros
+            $('#applyDateRange').click(function () {
+                $('.btn-date-picker').addClass('btn-danger');
+                table.ajax.reload();
+                $('#FilterModal').modal('hide');
+            });
+
+            // Limpiar filtros
+            $('#clearDateRange').click(function () {
+                $('#Folio').val('');
+                setSelectedWasteNames([]);
+                $('#GenerationArea').val('');
+                $('#ManifestNumber').val('');
+                $('#ManifestSealedSelect').val('');
+                $('#startDateInto').val('');
+                $('#endDateInto').val('');
+                $('#startDateOut').val('');
+                $('#endDateOut').val('');
+
+                $('.btn-date-picker').removeClass('btn-danger');
+                table.ajax.reload();
+                $('#FilterModal').modal('hide');
+            });
+
+            // Mostrar detalles
+            $(document).on('click', '.details-btn', function () {
+                currentEditId = $(this).data('id');
+                $.get('@Url.Action("Details", "Hazardous")', { id: currentEditId }, function (data) {
+                    $('#ModalBody').html(data);
+                    $('#ModalTitle').text('Detalles');
+                    $('#CreateModal').modal('show');
+                }).fail(function () {
+                    Swal.fire('Error', 'Error al cargar los detalles.', 'error');
+                });
+            });
+
+            // Botón editar - abre modal de edición
+            $('#saveEditBtn').click(function () {
+                $.get('@Url.Action("Edit", "Hazardous")', { id: currentEditId }, function (data) {
+                    $('#EditModalBody').html(data);
+                    $('#EditModal').modal('show');
+                }).fail(function () {
+                    Swal.fire('Error', 'Error al cargar el formulario de edición.', 'error');
+                });
+            });
+
+            // Guardar cambios de edición
+            $(document).on('submit', '#editForm', function (e) {
+                e.preventDefault();
+
+                var form = $(this);
+                var currentFilters = {
+                    Folio: $('#Folio').val(),
+                    WasteName: getSelectedWasteNames().join('|'),
+                    GenerationArea: $('#GenerationArea').val(),
+                    ManifestNumber: $('#ManifestNumber').val(),
+                    ManifestSealed: $('#ManifestSealedSelect').val(),
+                    startDateInto: $('#startDateInto').val(),
+                    endDateInto: $('#endDateInto').val(),
+                    startDateOut: $('#startDateOut').val(),
+                    endDateOut: $('#endDateOut').val()
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: form.attr('action') || '@Url.Action("Edit", "Hazardous")',
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            $('#EditModal').modal('hide');
+                            $('#CreateModal').modal('hide');
+
+                            Swal.fire('¡Éxito!', 'Registro actualizado correctamente.', 'success');
+
+                            // Restaurar filtros
+                            $('#Folio').val(currentFilters.Folio);
+                            setSelectedWasteNames(currentFilters.WasteName ? currentFilters.WasteName.split('|') : []);
+                            $('#GenerationArea').val(currentFilters.GenerationArea);
+                            $('#ManifestNumber').val(currentFilters.ManifestNumber);
+                            $('#ManifestSealedSelect').val(currentFilters.ManifestSealed);
+                            $('#startDateInto').val(currentFilters.startDateInto);
+                            $('#endDateInto').val(currentFilters.endDateInto);
+                            $('#startDateOut').val(currentFilters.startDateOut);
+                            $('#endDateOut').val(currentFilters.endDateOut);
+
+                            table.ajax.reload();
+                        } else {
+                            Swal.fire('Error', response.message || 'Error al guardar.', 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Error en el servidor.', 'error');
+                    }
+                });
+            });
+
+            // Eliminar registro
+            $('#deleteBtn').click(function () {
+                if (confirm('¿Estás seguro de que deseas eliminar este registro?')) {
+                    $.ajax({
+                        url: `/Hazardous/Delete/${currentEditId}`,
+                        type: 'POST',
+                        success: function (result) {
+                            if (result.success) {
+                                Swal.fire('¡Éxito!', 'Registro eliminado exitosamente.', 'success');
+                                $('#CreateModal').modal('hide');
+                                table.ajax.reload();
+                            } else {
+                                Swal.fire('Error', result.message || 'Error al eliminar.', 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'Ocurrió un error en la solicitud.', 'error');
+                        }
+                    });
+                }
+            });
+
+            // Función para exportar a Excel
+            function exportToExcel() {
+                const folio = $('#Folio').val() || '';
+                const wasteName = getSelectedWasteNames().join('|');
+                const generationArea = $('#GenerationArea').val() || '';
+                const manifestNumber = $('#ManifestNumber').val() || '';
+                const startDateInto = $('#startDateInto').val() || '';
+                const endDateInto = $('#endDateInto').val() || '';
+                const startDateOut = $('#startDateOut').val() || '';
+                const endDateOut = $('#endDateOut').val() || '';
+
+                // Mostrar modal de carga
+                Swal.fire({
+                    title: 'Generando archivo Excel...',
+                    text: 'Por favor espera',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                const params = new URLSearchParams({
+                    folio,
+                    wasteName,
+                    generationArea,
+                    manifestNumber,
+                    startDateInto,
+                    endDateInto,
+                    startDateOut,
+                    endDateOut
+                });
+
+                fetch(`/Hazardous/ExportToExcel?${params}`)
+                    .then(response => {
+                        if (response.status === 204) {
+                            Swal.fire('Sin datos', 'No hay registros para exportar con los filtros seleccionados.', 'info');
+                            return null;
+                        }
+                        if (!response.ok) {
+                            throw new Error('Error al generar el archivo');
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        if (blob) {
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'ResiduosPeligrosos.xlsx';
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            window.URL.revokeObjectURL(url);
+                            Swal.fire('¡Éxito!', 'Archivo Excel generado correctamente.', 'success');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'Ocurrió un error al generar el archivo Excel.', 'error');
+                    });
+            }
+        });
+    </script>
+}

@@ -1,0 +1,162 @@
+@model IEnumerable<SGA.Models.HazardousWasteManifest>
+@{
+    Layout = null;
+}
+
+
+<div class="container-fluid p-3">
+    <div class="form-group mb-3">
+        <label>Fechas</label>
+        <div class="row g-2">
+            <div class="col-md-4">
+                <input type="date" class="form-control" id="startDate"
+                       value="@DateTime.Today.ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-md-4">
+                <input type="date" class="form-control" id="endDate"
+                       value="@DateTime.Today.ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-primary w-100" id="btnBuscar">Buscar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped m-0">
+            <thead>
+                <tr>
+                    <th>Folio</th>
+                    <th>Residuo</th>
+                    <th>Área</th>
+                    <th>Cantidad</th>
+                    <th>Peso (KG)</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Folio</td>
+                        <td>@item.WasteName</td>
+                        <td>@item.GenerationArea</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.WeightKg?.ToString("N4")</td>
+                        <td>@item.WarehouseEntryDate?.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <button onclick="printLabelFromHistory(@item.Id)" class="btn btn-primary btn-sm">
+                                Imprimir Etiqueta
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function printCurrentLabel() {
+        // Validar que todos los campos requeridos estén completos
+        var folio = $('input[name="Folio"]').val().trim();
+        var weight = $('input[name="WeightKg"]').val().trim();
+        var area = $('input[name="GenerationArea"]').val().trim();
+
+        if (!folio || !weight || !area) {
+            alert('Por favor, completa todos los campos antes de imprimir la etiqueta.');
+            return;
+        }
+
+        var weightNum = parseFloat(weight);
+        if (isNaN(weightNum) || weightNum <= 0) {
+            alert('Por favor, ingresa un peso válido mayor que 0.');
+            return;
+        }
+
+        // Obtener fecha actual
+        var currentDate = new Date().toLocaleDateString('es-ES');
+
+        // Crear URL con parámetros
+        var url = '/Hazardous/PrintLabelDirect' +
+                  '?folio=' + encodeURIComponent(folio) +
+                  '&weight=' + encodeURIComponent(weight) +
+                  '&area=' + encodeURIComponent(area) +
+                  '&date=' + encodeURIComponent(currentDate);
+
+        // Abrir ventana de impresión
+        var printWindow = window.open(url, 'printLabel',
+            'width=400,height=600,scrollbars=yes,resizable=yes');
+
+        // Verificar si la ventana se abrió correctamente
+        if (!printWindow) {
+            alert('No se pudo abrir la ventana de impresión. Verifica que no esté bloqueada por el navegador.');
+        }
+    }
+
+    // Función para imprimir etiqueta desde el historial (usando ID del registro)
+    function printLabelFromHistory(id) {
+        if (!id) {
+            alert('ID de registro no válido.');
+            return;
+        }
+
+        // Abrir ventana de impresión directamente con el ID
+        var url = '/Hazardous/PrintLabel/' + id;
+        var printWindow = window.open(url, 'printLabel',
+            'width=400,height=600,scrollbars=yes,resizable=yes');
+
+        // Verificar si la ventana se abrió correctamente
+        if (!printWindow) {
+            alert('No se pudo abrir la ventana de impresión. Verifica que no esté bloqueada por el navegador.');
+        }
+    }
+
+    // Función para mostrar vista previa de la etiqueta actual
+    function previewCurrentLabel() {
+        var folio = $('input[name="Folio"]').val().trim() || '[Folio]';
+        var weight = $('input[name="WeightKg"]').val().trim() || '[Peso]';
+        var area = $('input[name="GenerationArea"]').val().trim() || '[Área]';
+        var currentDate = new Date().toLocaleDateString('es-ES');
+
+        var previewContent = `
+            <div style="font-family: Arial, sans-serif; border: 3px solid #ff0000; padding: 15px; max-width: 300px; margin: 20px auto; background: white;">
+                <div style="font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #ff0000; color: #ff0000;">
+                     RESIDUO PELIGROSO
+                </div>
+                <div style="font-size: 12px; line-height: 1.5;">
+                    <div><strong>Fecha:</strong> ${currentDate}</div>
+                    <div><strong>Área:</strong> ${area}</div>
+                    <div><strong>Folio:</strong> ${folio}</div>
+                    <div><strong>Peso:</strong> ${weight} KG</div>
+                </div>
+            </div>
+        `;
+
+        var previewWindow = window.open('', 'preview', 'width=400,height=500,scrollbars=yes');
+        previewWindow.document.write(`
+            <html>
+                <head>
+                    <title>Vista Previa - Etiqueta Residuo Peligroso</title>
+                </head>
+                <body style="margin: 0; padding: 20px; background: #f5f5f5;">
+                    <h3 style="text-align: center; margin-bottom: 20px;">Vista Previa de Etiqueta</h3>
+                    ${previewContent}
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Imprimir
+                        </button>
+                        <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                            Cerrar
+                        </button>
+                    </div>
+                </body>
+            </html>
+        `);
+        previewWindow.document.close();
+    }
+</script>

@@ -1,0 +1,140 @@
+﻿@model SGA.Models.NonHazardou
+
+@{
+    Layout = null;
+}
+
+<style>
+    .row-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 0;
+        transition: background-color 0.3s ease-in-out;
+    }
+
+        .row-item:hover {
+            background-color: #f5f5f5;
+            cursor: pointer;
+        }
+
+        .row-item dt,
+        .row-item dd {
+            padding: 8px;
+            flex: 1;
+        }
+</style>
+
+<div>
+    <dl class="row">
+        <div class="row-item">
+            <dt class="col-sm-5">Clave</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.WasteKey)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Nombre</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.WasteName)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Nombre en GDI</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.WasteNameGdi)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">No. parte</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.PartNumber)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Programa</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.Program)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Cantidad (unidad)</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.WasteQuantity)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Peso en KG</dt>
+            <dd class="col-sm-5">@Model.WasteWeight?.ToString("N4")</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Clave del área</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.AreaKey)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Área en GDI</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.AreaGdi)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Fecha de ingreso al almacén</dt>
+            <dd class="col-sm-5">@(Model.DateIntoWarehouse?.ToString("MM/dd/yyyy"))</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Clave de la forma de almacenamiento</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.StorageTypeKey)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Forma de almacenamiento</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.StorageType)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Fecha de salida del almacén (embarque)</dt>
+            <dd class="col-sm-5">@(Model.DateOutoWarehouse?.ToString("MM/dd/yyyy"))</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Folio / Núm. de manifiesto</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.ManifestNumber)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Destino (manejo especial)</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.WasteDestination)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Retorno al cliente</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.ReturnToClient)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Núm. generador / plan de manejo</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.WasteGeneratorNumber)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Nombre del transportista</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.CollectorName)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Núm. de autorización</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.CollectionAuthorizationNumber)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Nombre del Centro de Acopio</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.CollectionCenterName)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Núm. de autorización del centro de acopio</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.CollectionCenterAuthorizationNumber)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Nombre empresa (Reutilización de RME)</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.ReuseCompanyName)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Núm. de autorización de la empresa de reutilización</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.ReuseCompanyAuthorizationNumber)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Nombre empresa (Disposición final)</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.FinalDisposalCompanyName)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Núm. de autorización de la empresa de disposición final</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.FinalDisposalAuthorizationNumber)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Manifiesto sellado</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.SealedManifests)</dd>
+        </div>
+        <div class="row-item">
+            <dt class="col-sm-5">Comentarios</dt>
+            <dd class="col-sm-5">@Html.DisplayFor(model => model.Comments)</dd>
+        </div>
+        
+    </dl>
+</div>
+

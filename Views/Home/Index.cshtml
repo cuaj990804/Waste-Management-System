@@ -1,0 +1,202 @@
+@{
+    ViewData["Title"] = "Registro de Residuos";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    .selection-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+
+    .selection-title {
+        text-align: center;
+        margin-bottom: 3rem;
+        color: #2c3e50;
+    }
+
+    .selection-title h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .selection-title p {
+        font-size: 1.2rem;
+        color: #6c757d;
+    }
+
+    .waste-card {
+        height: 100%;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: 3px solid transparent;
+        text-decoration: none;
+        display: block;
+        color: inherit;
+        user-select: none;
+    }
+
+    .waste-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .waste-card:active {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .waste-card.non-hazardous {
+        border-color: #28a745;
+    }
+
+    .waste-card.non-hazardous:hover {
+        border-color: #218838;
+        background-color: #f1f9f3;
+    }
+
+    .waste-card.hazardous {
+        border-color: #dc3545;
+    }
+
+    .waste-card.hazardous:hover {
+        border-color: #c82333;
+        background-color: #fdf2f3;
+    }
+
+    .waste-card.return-material {
+        border-color: #f97316;
+    }
+
+    .waste-card.return-material:hover {
+        border-color: #ea580c;
+        background-color: #fff4eb;
+    }
+
+    .waste-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .waste-card.non-hazardous .waste-icon {
+        color: #28a745;
+    }
+
+    .waste-card.hazardous .waste-icon {
+        color: #dc3545;
+    }
+
+    .waste-card.return-material .waste-icon {
+        color: #f97316;
+    }
+
+    .waste-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #2c3e50;
+    }
+
+    .waste-description {
+        font-size: 1rem;
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+    }
+
+    .waste-badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .card-body {
+        padding: 3rem 2rem;
+    }
+</style>
+
+<div class="selection-container">
+    <div class="container">
+        <div class="selection-title">
+            <h1><i class="bi bi-recycle"></i> Sistema de Gestión Ambiental</h1>
+            <p>Selecciona el tipo de residuo que deseas registrar</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Residuos No Peligrosos -->
+            <div class="col-md-4">
+                <a href="@Url.Action("Create", "NonHazardous")" class="waste-card card shadow-lg non-hazardous">
+                    <div class="card-body text-center">
+                        <div class="waste-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <h3 class="waste-title">Residuos No Peligrosos</h3>
+                        <p class="waste-description">
+                            Residuos que no representan riesgo para la salud o el medio ambiente.
+                            Incluye materiales reciclables, chatarra y residuos generales.
+                        </p>
+                        <span class="badge bg-success waste-badge">
+                            <i class="bi bi-plus-circle"></i> Registrar Residuo No Peligroso
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <a href="@Url.Action("Create", "ReturnMaterial")" class="waste-card card shadow-lg return-material">
+                    <div class="card-body text-center">
+                        <div class="waste-icon">
+                            <i class="bi bi-arrow-return-left"></i>
+                        </div>
+                        <h3 class="waste-title">Material de Retorno</h3>
+                        <p class="waste-description">
+                            Material identificado para retorno al cliente de acuerdo con su número de parte.
+                        </p>
+                        <span class="badge waste-badge" style="background-color: #f97316;">
+                            <i class="bi bi-plus-circle"></i> Registrar Material de Retorno
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Residuos Peligrosos -->
+            <div class="col-md-4">
+                <a href="@Url.Action("Create", "Hazardous")" class="waste-card card shadow-lg hazardous">
+                    <div class="card-body text-center">
+                        <div class="waste-icon">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+                        <h3 class="waste-title">Residuos Peligrosos</h3>
+                        <p class="waste-description">
+                            Residuos con características CRETIB que requieren manejo especial.
+                            Incluye químicos, aceites contaminados y materiales biológicos.
+                        </p>
+                        <span class="badge bg-danger waste-badge">
+                            <i class="bi bi-plus-circle"></i> Registrar Residuo Peligroso
+                        </span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card border-info">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-info-circle-fill text-info"></i> Información</h5>
+                        <p class="card-text mb-0">
+                            <strong>Códigos CRETIB:</strong> Corrosivo, Reactivo, Explosivo, Tóxico, Inflamable, Biológico-Infeccioso.
+                            Si tienes dudas sobre la clasificación de un residuo, consulta con tu supervisor.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

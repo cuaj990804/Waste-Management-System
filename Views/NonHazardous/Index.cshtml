@@ -1,0 +1,666 @@
+﻿@model IEnumerable<SGA.Models.NonHazardou>
+
+@{
+    ViewData["Title"] = "Index";
+    var controllerName = ViewContext.RouteData.Values["controller"]?.ToString() ?? "NonHazardous";
+    var moduleTitle = ViewBag.ModuleTitle as string ?? "Residuos no peligrosos";
+}
+
+<link rel="stylesheet" href="~/css/buttons.css" asp-append-version="true" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    .checkbox-filter-list {
+        max-height: 180px;
+        overflow-y: auto;
+        border: 1px solid #d9e0e7;
+        border-radius: 0.75rem;
+        padding: 0.6rem 0.75rem;
+        background: #fff;
+    }
+
+    .checkbox-filter-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.35rem;
+        padding: 0.35rem 0.45rem;
+        border-radius: 0.5rem;
+        transition: background-color 0.15s ease;
+    }
+
+    .checkbox-filter-item:hover {
+        background: #f8fafc;
+    }
+
+    .checkbox-filter-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .filter-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.85rem;
+        padding: 0.75rem;
+        background: linear-gradient(180deg, #ffffff 0%, #fafbfd 100%);
+        margin-bottom: 0.75rem;
+    }
+
+    .filter-card > label {
+        font-weight: 600;
+        margin-bottom: 0.55rem;
+        display: block;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.85rem;
+    }
+
+    .filter-span-2 {
+        grid-column: 1 / -1;
+    }
+
+    @@media (max-width: 768px) {
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-span-2 {
+            grid-column: auto;
+        }
+    }
+</style>
+
+<h1>@moduleTitle</h1>
+<table class="table" id="DataTable">
+    <thead>
+        <tr>
+            <th>@(ViewBag.ColWasteKey ?? "Clave del residuo")</th>
+            <th>@(ViewBag.ColWasteName ?? "Nombre del residuo")</th>
+            <th>@(ViewBag.ColWasteNameGdi ?? "Nombre del residuo en GDI")</th>
+            <th>@(ViewBag.ColPartNumber ?? "No. parte")</th>
+            <th>@(ViewBag.ColProgram ?? "Programa")</th>
+            <th>@(ViewBag.ColQuantity ?? "Cantidad (unidad)")</th>
+            <th>@(ViewBag.ColWeight ?? "Peso en KG")</th>
+            <th>@(ViewBag.ColAreaKey ?? "Clave del área")</th>
+            <th>@(ViewBag.ColAreaGdi ?? "Área en GDI")</th>
+            <th>@(ViewBag.ColDateInto ?? "Fecha de ingreso al almacén")</th>
+            <th>@(ViewBag.ColStorageKey ?? "Clave de la forma de almacenamiento")</th>
+            <th>@(ViewBag.ColStorageType ?? "Forma de almacenamiento")</th>
+            <th>@(ViewBag.ColComments ?? "Comentarios")</th>
+            <th>Estado</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+    </table>
+
+    <div class="modal fade" id="CreateModal" tabindex="-1" role="dialog" aria-labelledby="CreateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalTitle"></h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="ModalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="saveEditBtn">Editar</button>
+                <button type="button" class="btn btn-danger" id="deleteBtn">Eliminar</button>
+            </div>
+
+        </div>
+    </div>
+    </div>
+
+    <!-- Modal para Editar -->
+    <div class="modal fade" id="EditModal" tabindex="-1" aria-labelledby="DetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="DetailsModalLabel">Editar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="EditModalBody"></div>
+            <div class="modal-footer">
+                <button type="submit" form="editForm" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Modal para Filtros -->
+    <div class="modal fade" id="FilterModal" tabindex="-1" role="dialog" aria-labelledby="DatePickerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="DatePickerModalLabel">Búsqueda avanzada</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="filter-grid">
+                        <!-- Campo para "Waste Key" -->
+                        <div class="form-group filter-card">
+                            <label for="WasteKey">@(ViewBag.ColWasteKey ?? "Clave del residuo")</label>
+                            <div id="WasteKey" class="checkbox-filter-list">
+                                @foreach (var key in ViewBag.WasteKeyDataList as List<string>)
+                                {
+                                    <div class="checkbox-filter-item">
+                                        <input type="checkbox" class="waste-key-checkbox" value="@key" id="wastekey_@key.GetHashCode()" />
+                                        <label for="wastekey_@key.GetHashCode()">@key</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Campo para "Nombre del residuo" -->
+                        <div class="form-group filter-card">
+                            <label for="WasteName">@(ViewBag.ColWasteName ?? "Nombre del residuo")</label>
+                            <div id="WasteName" class="checkbox-filter-list">
+                                @foreach (var part in ViewBag.WasteNameDataList as List<string>)
+                                {
+                                    <div class="checkbox-filter-item">
+                                        <input type="checkbox" class="waste-name-checkbox" value="@part" id="waste_@part.GetHashCode()" />
+                                        <label for="waste_@part.GetHashCode()">@part</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Campo para "Nombre del residuo en GDI" -->
+                        <div class="form-group">
+                            <label for="WasteNameGDI">@(ViewBag.ColWasteNameGdi ?? "Nombre del residuo en GDI")</label>
+                            <input class="form-control" list="wasteNameGDIList" id="WasteNameGDI" type="search" />
+                            <datalist id="wasteNameGDIList">
+                                @foreach (var part in ViewBag.WasteNameGDIDataList as List<string>)
+                                {
+                                    <option value="@part"></option>
+                                }
+                            </datalist>
+                        </div>
+
+                        <!-- Campo para "No. parte" -->
+                        <div class="form-group">
+                            <label for="PartNumber">No. parte</label>
+                            <input class="form-control" list="partNumberList" id="PartNumber" type="search" />
+                            <datalist id="partNumberList">
+                                @foreach (var part in ViewBag.PartNumberDataList as List<string>)
+                                {
+                                    <option value="@part"></option>
+                                }
+                            </datalist>
+                        </div>
+
+                        <!-- Campo para "Programa" -->
+                        <div class="form-group">
+                            <label for="Program">Programa</label>
+                            <input class="form-control" list="programList" id="Program" type="search" />
+                            <datalist id="programList">
+                                @foreach (var part in ViewBag.ProgramDataList as List<string>)
+                                {
+                                    <option value="@part"></option>
+                                }
+                            </datalist>
+                        </div>
+
+                        <!-- Campo para "Área en GDI" -->
+                        <div class="form-group">
+                            <label for="AreaGDI">Área en GDI</label>
+                            <input class="form-control" list="areaList" id="AreaGDI" type="search" />
+                            <datalist id="areaList">
+                                @foreach (var area in ViewBag.AreaDataList as List<string>)
+                                {
+                                    <option value="@area"></option>
+                                }
+                            </datalist>
+                        </div>
+
+                        <!-- Campo para "Forma de almacenamiento" -->
+                        <div class="form-group">
+                            <label for="StorageType">@(ViewBag.ColStorageType ?? "Forma de almacenamiento")</label>
+                            <input class="form-control" list="storageList" id="StorageType" type="search" />
+                            <datalist id="storageList">
+                                @foreach (var storage in ViewBag.StorageDataList as List<string>)
+                                {
+                                    <option value="@storage"></option>
+                                }
+                            </datalist>
+                        </div>
+
+                        <!-- Campo para "Retorno al cliente" -->
+                        <div class="form-group">
+                            <label for="ReturnToClient">Retorno al cliente</label>
+                            <select id="ReturnToClientSelect" class="form-control" >
+                                <option value="" disabled selected>Seleccione una opción</option>
+                                <option value="Si">Si</option>
+                                <option value="No">No</option>
+                                <option value="N/A">N/A</option>
+                            </select>
+                        </div>
+
+                        <!-- Campo para "Manifiestos sellados" -->
+                        <div class="form-group">
+                            <label for="SealedManifests">Manifiestos sellados</label>
+                            <select id="SealedManifestsSelect" class="form-control" >
+                                <option value="" disabled selected>Seleccione una opción</option>
+                                <option value="Si">Si</option>
+                                <option value="No">No</option>
+                                <option value="N/A">N/A</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group filter-span-2">
+                            <label for="DateIntoWarehouse">Fecha de ingreso al almacén</label>
+                            <div class="row">
+                                <div class="col">
+                                    <input type="date" class="form-control" id="startDateInto">
+                                </div>
+                                <div class="col">
+                                    <input type="date" class="form-control" id="endDateInto">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fecha de Salida -->
+                        <div class="form-group filter-span-2">
+                            <label for="DateOutoWarehouse">Fecha de salida del almacén (embarque)</label>
+                            <div class="row">
+                                <div class="col">
+                                    <input type="date" class="form-control" id="startDateOut">
+                                </div>
+                                <div class="col">
+                                    <input type="date" class="form-control" id="endDateOut">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="clearDateRange">Limpiar Filtros</button>
+                <button type="button" class="btn btn-primary" id="applyDateRange">Aplicar</button>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@section scripts {
+    
+
+    <script>
+        $(document).ready(function () {
+            let currentEditId = null; // Variable para almacenar el ID
+
+            function getSelectedWasteNames() {
+                return $('.waste-name-checkbox:checked').map(function () {
+                    return $(this).val();
+                }).get();
+            }
+
+            function getSelectedWasteKeys() {
+                return $('.waste-key-checkbox:checked').map(function () {
+                    return $(this).val();
+                }).get();
+            }
+
+            function setSelectedWasteNames(values) {
+                const selected = values || [];
+                $('.waste-name-checkbox').prop('checked', false);
+                selected.forEach(function (value) {
+                    $('.waste-name-checkbox').filter(function () {
+                        return $(this).val() === value;
+                    }).prop('checked', true);
+                });
+            }
+
+            function setSelectedWasteKeys(values) {
+                const selected = values || [];
+                $('.waste-key-checkbox').prop('checked', false);
+                selected.forEach(function (value) {
+                    $('.waste-key-checkbox').filter(function () {
+                        return $(this).val() === value;
+                    }).prop('checked', true);
+                });
+            }
+
+            let table = $('#DataTable').DataTable({
+                processing: true,
+                serverSide: true,
+                order: [[9, 'desc']],
+                "pageLength": 15,
+                "searching": false,
+                "dom": 'Bfrtip',
+                searching: false,
+                ajax: {
+                    url: '/@controllerName/GetTable',
+                    type: 'POST',
+                    data: function (d) {
+                        // Recoger los valores de los filtros aplicados
+                        d.wasteKey = getSelectedWasteKeys().join('|');
+                        d.wasteName = getSelectedWasteNames().join('|'); // Filtro por "Nombre del residuo"
+                        d.wasteNameGDI = $('#WasteNameGDI').val(); // Filtro por "Nombre del residuo en GDI"
+                        d.partNumber = $('#PartNumber').val(); // Filtro por "No. parte"
+                        d.program = $('#Program').val(); // Filtro por "Programa"
+                        d.areaGDI = $('#AreaGDI').val(); // Filtro por "Área en GDI"
+                        d.storageType = $('#StorageType').val(); // Filtro por "Forma de almacenamiento"
+                        d.returnToClient = $('#ReturnToClientSelect').val(); // Filtro por "Retorno al cliente"
+                        d.sealedManifests = $('#SealedManifestsSelect').val(); // Filtro por "Manifiestos sellados"
+                        d.startDateInto = $('#startDateInto').val();
+                        d.endDateInto = $('#endDateInto').val();
+                        d.startDateOut = $('#startDateOut').val();
+                        d.endDateOut = $('#endDateOut').val();
+                    }
+                },
+                "buttons": [
+                    {
+                        text: 'Filtro',
+                        className: 'btn btn-secondary btn-date-picker',
+                        action: function (e, dt, node, config) {
+                            $('#FilterModal').modal('show');
+                        }
+                    },
+                    @await Html.PartialAsync("_AdminModuleButtons")
+                    {
+                        text: '<i class="bi bi-file-earmark-spreadsheet-fill"></i>',
+                        className: 'btn-excel',
+
+                        action: function (e, dt, node, config) {
+                            var wasteKey = getSelectedWasteKeys().join('|');
+                            var wasteName = getSelectedWasteNames().join('|');
+                            var wasteNameGDI = $('#WasteNameGDI').val();
+                            var partNumber = $('#PartNumber').val();
+                            var program = $('#Program').val();
+                            var areaGDI = $('#AreaGDI').val();
+                            var storageType = $('#StorageType').val();
+                            var returnToClient = $('#ReturnToClientSelect').val();
+                            var sealedManifests = $('#SealedManifestsSelect').val();
+                            var startDateInto = $('#startDateInto').val();
+                            var endDateInto = $('#endDateInto').val();
+                            var startDateOut = $('#startDateOut').val();
+                            var endDateOut = $('#endDateOut').val();
+
+                            // Verificar si al menos uno de los filtros está seleccionado
+                             if (!wasteKey && !wasteName && !wasteNameGDI && !partNumber && !program && !areaGDI &&!storageType && !returnToClient && !sealedManifests &&!startDateInto && !endDateInto && !startDateOut && !endDateOut)
+                            {
+                                // Mostrar alerta al usuario
+                                alert("Debe proporcionar al menos un filtro para exportar a Excel.");
+                                return; // Salir de la función sin realizar la solicitud AJAX
+                            }
+                            Swal.fire({
+                                title: 'Generando archivo...',
+                                text: 'Por favor espere mientras se genera el Excel.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+                           
+                            // Enviar solicitud AJAX para exportar a Excel
+                            $.ajax({
+                                url: '/@controllerName/ExportToExcel', // URL de la acción en el controlador
+                                type: 'GET',
+                                data: {
+                                    wasteKey: wasteKey,
+                                    wasteName: wasteName,
+                                    wasteNameGDI: wasteNameGDI,
+                                    partNumber: partNumber,
+                                    program: program,
+                                    areaGDI: areaGDI,
+                                    storageType: storageType,
+                                    returnToClient: returnToClient,
+                                    sealedManifests: sealedManifests,
+                                    startDateInto: startDateInto,
+                                    endDateInto: endDateInto,
+                                    startDateOut: startDateOut,
+                                    endDateOut: endDateOut
+                                },
+                                xhrFields: {
+                                    responseType: 'blob'  // Especificar que la respuesta será un archivo binario (blob)
+                                },
+                                success: function (response) {
+                                     Swal.close();
+                                    // Verificar si la respuesta contiene datos válidos
+                                    if (response && response.size > 0) {
+                                        // Crear un enlace temporal para descargar el archivo
+                                        var blob = response;  // El archivo recibido desde el servidor
+                                        var link = document.createElement('a');
+                                        link.href = window.URL.createObjectURL(blob);
+                                        link.download = '@moduleTitle.Replace(" ", "")' + '.xlsx';  // Nombre del archivo a descargar
+                                        link.click();  // Simular un clic para iniciar la descarga
+                                    } else {
+                                        alert("No se encontraron datos para exportar.");
+                                    }
+                                },
+                                error: function (xhr, status, error) {
+                                    // Manejo de errores
+                                    console.error('Error al exportar a Excel:', error);
+                                    alert("Ocurrió un error al exportar los datos. Inténtalo nuevamente.");
+                                }
+                            });
+                        }
+                    }
+                ],
+                columns: [
+                    { data: 'wasteKey' },
+                    { data: 'wasteName'},
+                    { data: 'wasteNameGdi'},
+                    { data: 'partNumber'},
+                    { data: 'program' },
+                    { data: 'wasteQuantity'},
+                    { data: 'wasteWeight' },
+                    { data: 'areaKey' },
+                    { data: 'areaGdi'},
+                    {
+                        data: 'dateIntoWarehouse',
+                        render: function (data) {
+                            if (!data) return '';
+                            const [year, month, day] = data.split('T')[0].split('-');
+                            return `${month}/${day}/${year}`;
+                        }
+                    },
+                    { data: 'storageTypeKey' },
+                    { data: 'storageType'},
+                    { data: 'comments'},
+                    {
+                        data: 'sealedManifests',
+                        render: function (data, type, row) {
+                            // Lógica para mostrar el estado como una etiqueta
+                            return data == "No"
+                                ? '<span class="badge bg-warning text-dark">Pendiente</span>'
+                                : '<span class="badge bg-success text-white">Finalizado</span>';
+                        }
+                    },
+                    {
+                        data: 'nonHazardousId',
+                        render: function (data, type, row, meta) {
+                            return `<button class="btn btn-dark details-btn" data-id="${data}">Detalles
+                            </button>`;
+                        },
+                        orderable: false,
+                        searchable: false
+                       
+                    }
+                ],
+                
+            });
+            $('#applyDateRange').click(function () {
+              
+                const dateIntoWarehouse = $('#DateIntoWarehouse').val(); // Obtiene el valor del campo "Fecha de ingreso al almacén"
+                const dateOutoWarehouse = $('#DateOutoWarehouse').val(); // Obtiene el valor del campo "Fecha de salida del almacén"
+
+                // Agregar una clase de error si se están aplicando filtros
+                $('.btn-date-picker').addClass('btn-danger');
+
+                // Recargar la tabla con los filtros aplicados
+                table.ajax.reload();
+
+                // Cerrar el modal de filtros
+                $('#FilterModal').modal('hide');
+            });
+
+            // Limpia los filtros
+            $('#clearDateRange').click(function () {
+                // Limpia los valores de los campos de entrada
+                setSelectedWasteKeys([]);
+                setSelectedWasteNames([]);
+                $('#WasteNameGDI').val('');
+                $('#PartNumber').val('');
+                $('#Program').val('');
+                $('#AreaGDI').val('');
+                $('#StorageType').val('');
+                $('#ReturnToClientSelect').val('');
+                $('#SealedManifestsSelect').val('');
+                $('#startDateInto').val('');
+                $('#endDateInto').val('');
+                $('#startDateOut').val('');
+                $('#endDateOut').val('');
+
+                // Elimina la clase de error de los botones
+                $('.btn-date-picker').removeClass('btn-danger');
+
+                // Recargar la tabla sin filtros
+                table.ajax.reload();
+
+                // Cerrar el modal de filtros
+                $('#FilterModal').modal('hide');
+            });
+            $(document).on('click', '.details-btn', function () {
+                currentEditId = $(this).data('id');
+                $.get('@Url.Action("Details", controllerName)', { id: currentEditId }, function (data) {
+                    $('#ModalBody').html(data);
+                    $('#ModalTitle').text('Detalles');
+                    $('#CreateModal').modal('show');
+                }).fail(function () {
+                    alert("Error al cargar los detalles del cliente.");
+                });
+            });
+
+            $(document).on('submit', '#editForm', function (e) {
+                e.preventDefault();
+
+                var form = $(this);
+                var currentFilters = {
+                    WasteKey: getSelectedWasteKeys().join('|'),
+                    WasteName: getSelectedWasteNames().join('|'),
+                    WasteNameGDI: $('#WasteNameGDI').val(),
+                    PartNumber: $('#PartNumber').val(),
+                    Program: $('#Program').val(),
+                    AreaGDI: $('#AreaGDI').val(),
+                    StorageType: $('#StorageType').val(),
+                    ReturnToClient: $('#ReturnToClientSelect').val(),
+                    SealedManifests: $('#SealedManifestsSelect').val(),
+                    startDateInto: $('#startDateInto').val(),
+                    endDateInto: $('#endDateInto').val(),
+                    startDateOut: $('#startDateOut').val(),
+                    endDateOut: $('#endDateOut').val()
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: form.attr('action') || '@Url.Action("Edit", controllerName)',
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            $('#EditModal').modal('hide');
+                            $('#CreateModal').modal('hide');
+                            $('#clearDateRange').click();
+                            
+                            Swal.fire('¡Éxito!', 'Registro actualizado correctamente.', 'success');
+
+                            setSelectedWasteKeys(currentFilters.WasteKey ? currentFilters.WasteKey.split('|') : []);
+                            setSelectedWasteNames(currentFilters.WasteName ? currentFilters.WasteName.split('|') : []);
+                            $('#WasteNameGDI').val(currentFilters.WasteNameGDI);
+                            $('#PartNumber').val(currentFilters.PartNumber);
+                            $('#Program').val(currentFilters.Program);
+                            $('#AreaGDI').val(currentFilters.AreaGDI);
+                            $('#StorageType').val(currentFilters.StorageType);
+                            $('#ReturnToClientSelect').val(currentFilters.ReturnToClient);
+                            $('#SealedManifestsSelect').val(currentFilters.SealedManifests);
+                            $('#startDateInto').val(currentFilters.startDateInto);
+                            $('#endDateInto').val(currentFilters.endDateInto);
+                            $('#startDateOut').val(currentFilters.startDateOut);
+                            $('#endDateOut').val(currentFilters.endDateOut);
+                        } else {
+                            Swal.fire('Error', response.message || 'Error al guardar.', 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Error en el servidor.', 'error');
+                    }
+                });
+            });
+
+
+            $('#saveEditBtn').click(function () {
+                console.log(currentEditId);
+                $.get('@Url.Action("Edit", controllerName)', { id: currentEditId }, function (data) {
+                    $('#EditModalBody').html(data);
+                    $('#ModalTitle').text('Editar');
+                    $('#EditModal').modal('show');
+                }).fail(function () {
+                    alert("Error al cargar los detalles del cliente.");
+                });     
+       
+            });
+
+            $('#deleteBtn').click(function () {
+               
+
+                if (confirm('¿Estás seguro de que deseas eliminar este registro?')) {
+                    $.ajax({
+                        url: `/${'@controllerName'}/Delete/${currentEditId}`,
+                        type: 'POST',
+                        success: function (result) {
+                            if (result.success) {
+                                alert('Registro eliminado exitosamente.');
+                                window.location.href = "/@controllerName/Index";
+                                //$('#DataTable').DataTable().ajax.reload();
+                            } else {
+                                alert('Error al eliminar: ' + result.message);
+                            }
+                        },
+                        error: function () {
+                            alert('Ocurrió un error en la solicitud.');
+                        }
+                    });
+                }
+                
+
+            });
+           
+
+            $('#editForm').on('submit', function (e) {
+                e.preventDefault(); // Evita el envío tradicional
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            $('#EditModal').modal('hide');
+                            location.reload(); // Actualiza la página
+                        } else {
+                            $('#EditModalBody').html(response); // Muestra errores
+                        }
+                    },
+                    error: function () {
+                        alert('Error al guardar los cambios');
+                    }
+                });
+            });
+        
+
+
+
+        });
+    </script>
+}
+
+

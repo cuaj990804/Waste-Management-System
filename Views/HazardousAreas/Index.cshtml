@@ -1,0 +1,36 @@
+@model IEnumerable<SGA.Models.HazardousArea>
+
+@{
+    ViewData["Title"] = "Áreas de residuos peligrosos";
+}
+
+<h1>Áreas de residuos peligrosos</h1>
+
+<p>
+    <a asp-action="Create">Registrar una nueva área</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Clave</th>
+            <th>Área en GDI</th>
+            <th>Descripción</th>
+            <th>Activo</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>@Html.DisplayFor(modelItem => item.AreaKey)</td>
+            <td>@Html.DisplayFor(modelItem => item.AreaName)</td>
+            <td>@Html.DisplayFor(modelItem => item.AreaDescription)</td>
+            <td>@(item.IsActive ? "Sí" : "No")</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.HazardousAreaId">Editar</a> |
+                <a asp-action="Delete" asp-route-id="@item.HazardousAreaId">Eliminar</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

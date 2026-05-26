@@ -1,0 +1,31 @@
+@{
+    var controllerName = ViewContext.RouteData.Values["controller"]?.ToString() ?? "NonHazardous";
+}
+{
+    text: '<i class="bi bi-plus-lg"></i>',
+    className: 'btn-add',
+    action: function (e, dt, node, config) {
+        window.location.href = '/@controllerName/Create';
+    }
+},
+{
+    text: '<i class="bi bi-database-fill"></i>',
+    className: 'btn-pn',
+    action: function (e, dt, node, config) {
+        window.location.href = '/PartNumbers/Index';
+    }
+},
+{
+    text: '<i class="bi bi-archive-fill"></i>',
+    className: 'btn-st',
+    action: function (e, dt, node, config) {
+        window.location.href = '/StorageTypes/Index';
+    }
+},
+{
+    text: '<i class="bi bi-pin-map-fill"></i>',
+    className: 'btn-area',
+    action: function (e, dt, node, config) {
+        window.location.href = '/Areas/Index';
+    }
+},

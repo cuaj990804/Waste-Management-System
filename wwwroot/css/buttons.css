@@ -1,0 +1,64 @@
+.btn-excel {
+    background-color: #107C10; /* Verde oscuro similar al logo de Excel */
+    color: white; /* Texto blanco */
+    padding: 8px 16px; /* Espaciado interno */
+    border: none; /* Sin borde */
+    border-radius: 4px; /* Bordes redondeados */
+    cursor: pointer; /* Cursor en forma de mano al pasar por encima */
+}
+
+    .btn-excel:hover {
+        background-color: #0F6B0F; /* Tono más oscuro al pasar el ratón */
+    }
+
+.btn-add {
+    background-color: #276897; /* Verde oscuro similar al logo de Excel */
+    color: white; /* Texto blanco */
+    padding: 8px 16px; /* Espaciado interno */
+    border: none; /* Sin borde */
+    border-radius: 4px; /* Bordes redondeados */
+    cursor: pointer; /* Cursor en forma de mano al pasar por encima */
+}
+
+    .btn-add:hover {
+        background-color: #234d6f; /* Tono más oscuro al pasar el ratón */
+    }
+
+.btn-pn {
+    background-color: #EF7A53; /* Verde oscuro similar al logo de Excel */
+    color: white; /* Texto blanco */
+    padding: 8px 16px; /* Espaciado interno */
+    border: none; /* Sin borde */
+    border-radius: 4px; /* Bordes redondeados */
+    cursor: pointer; /* Cursor en forma de mano al pasar por encima */
+}
+
+    .btn-pn:hover {
+        background-color: #f96635; /* Tono más oscuro al pasar el ratón */
+    }
+
+.btn-st {
+    background-color: #f9c835; /* Verde oscuro similar al logo de Excel */
+    color: white; /* Texto blanco */
+    padding: 8px 16px; /* Espaciado interno */
+    border: none; /* Sin borde */
+    border-radius: 4px; /* Bordes redondeados */
+    cursor: pointer; /* Cursor en forma de mano al pasar por encima */
+}
+
+    .btn-st:hover {
+        background-color: #ffbf00; /* Tono más oscuro al pasar el ratón */
+    }
+
+.btn-area {
+    background-color: #a865e7; /* Verde oscuro similar al logo de Excel */
+    color: white; /* Texto blanco */
+    padding: 8px 16px; /* Espaciado interno */
+    border: none; /* Sin borde */
+    border-radius: 4px; /* Bordes redondeados */
+    cursor: pointer; /* Cursor en forma de mano al pasar por encima */
+}
+
+    .btn-area:hover {
+        background-color: #a447fb; /* Tono más oscuro al pasar el ratón */
+    }

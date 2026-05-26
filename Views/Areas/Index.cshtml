@@ -1,0 +1,46 @@
+﻿@model IEnumerable<SGA.Models.Area>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Areas</h1>
+
+<p>
+    <a asp-action="Create">Registrar una nueva Área</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Clave
+            </th>
+            <th>
+                ÁREA EN GDI
+            </th>
+            <th>
+                Descripción
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.AreaKey)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AreaName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AreaDescription)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.AreaId">Editar</a> |
+                <a asp-action="Delete" asp-route-id="@item.AreaId">Eliminar</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,83 @@
+﻿@model SGA.Models.PartNumber
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>PartNumber</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="PartNumberKey" class="control-label">Clave del residuo</label>
+                        <input asp-for="PartNumberKey" class="form-control" />
+                        <span asp-validation-for="PartNumberKey" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="PartNumberName" class="control-label">Nombre del residuo</label>
+                        <input asp-for="PartNumberName" class="form-control" />
+                        <span asp-validation-for="PartNumberName" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="PartNumberNameGdi" class="control-label">Nombre del residuo en GDI</label>
+                        <input asp-for="PartNumberNameGdi" class="form-control" />
+                        <span asp-validation-for="PartNumberNameGdi" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="PartNumber1" class="control-label">Numero de parte</label>
+                        <input asp-for="PartNumber1" class="form-control" />
+                        <span asp-validation-for="PartNumber1" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="PartNumberProgram" class="control-label">Programa</label>
+                        <input asp-for="PartNumberProgram" class="form-control" />
+                        <span asp-validation-for="PartNumberProgram" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="IsReturnMaterial" class="control-label">¿Es material de retorno?</label>
+                        <select asp-for="IsReturnMaterial" class="form-control">
+                            <option value="false">No</option>
+                            <option value="true">Sí</option>
+                        </select>
+                        <span asp-validation-for="IsReturnMaterial" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <input type="submit" value="Guardar" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

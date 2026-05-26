@@ -1,0 +1,64 @@
+﻿@model IEnumerable<SGA.Models.PartNumber>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Numeros de parte</h1>
+
+<p>
+    <a asp-action="Create">Registrar un nuevo residuo</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Clave del residuo
+            </th>
+            <th>
+                Nombre del residuo
+            </th>
+            <th>
+                Nombre del resiudo en GDI
+            </th>
+            <th>
+                Numero de parte
+            </th>
+            <th>
+                Programa
+            </th>
+            <th>
+                Material de retorno
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.PartNumberKey)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PartNumberName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PartNumberNameGdi)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PartNumber1)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PartNumberProgram)
+            </td>
+            <td>
+                @(item.IsReturnMaterial ? "Sí" : "No")
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.PartNumberId">Editar</a> |
+                <a asp-action="Delete" asp-route-id="@item.PartNumberId">Eliminar</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

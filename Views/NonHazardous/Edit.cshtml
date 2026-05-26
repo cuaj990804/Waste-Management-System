@@ -1,0 +1,353 @@
+﻿@model SGA.Models.NonHazardou
+
+@{
+    Layout = null;
+    var controllerName = ViewContext.RouteData.Values["controller"]?.ToString() ?? "NonHazardous";
+}
+
+
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Edit" asp-route-id="@Model.NonHazardousId" id="editForm" >
+            @Html.AntiForgeryToken() <!-- ✅ Agrega esto -->
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="NonHazardousId" /> <!-- Campo oculto para el ID -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="PartNumber" class="form-label">Numero de parte</label>
+                        <input asp-for="PartNumber"
+                               class="form-control"
+                               list="partNumbersList"
+                               placeholder="Escribe o selecciona..."
+                               id="partNumberInput"
+                               type="search">
+                        <datalist id="partNumbersList">
+                            @foreach (var part in ViewBag.PartNumberDataList as List<string>)
+                            {
+                                <option value="@part"></option>
+                            }
+                        </datalist>
+                        <span asp-validation-for="PartNumber" class="text-danger"></span>
+                    </div>
+                    
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="WasteKey" class="control-label">Clave del residuo</label>
+                        <input asp-for="WasteKey" class="form-control" id="WasteKey"/>
+                        <span asp-validation-for="WasteKey" class="text-danger"></span>
+                    </div>
+                    
+                    
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="WasteName" class="control-label">Nombre del residuo</label>
+                        <input asp-for="WasteName" class="form-control" id="WasteName" />
+                        <span asp-validation-for="WasteName" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="WasteNameGdi" class="control-label">Nombre del resiuo en GDI</label>
+                        <input asp-for="WasteNameGdi" class="form-control" id="WasteNameGdi" />
+                        <span asp-validation-for="WasteNameGdi" class="text-danger"></span>
+                    </div>
+                    
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="Program" class="control-label">Programa</label>
+                        <input asp-for="Program" class="form-control" id="Program" />
+                        <span asp-validation-for="Program" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="WasteQuantity" class="control-label">Cantidad(unidad)</label>
+                        <input asp-for="WasteQuantity" class="form-control" type="number" />
+                        <span asp-validation-for="WasteQuantity" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="WasteWeight" class="control-label">Peso(KG)</label>
+                        <input asp-for="WasteWeight" class="form-control" type="number" step="0.0001" />
+                        <span asp-validation-for="WasteWeight" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="AreaGdi" class="control-label">Área en GDI</label>
+                        <input asp-for="AreaGdi" class="form-control"
+                               class="form-control"
+                               list="areaDataList"
+                               placeholder="Escribe o selecciona..."
+                               id="AreaInput"
+                               type="search">
+                        <datalist id="areaDataList">
+                            @foreach (var area in ViewBag.AreaDataList as List<string>)
+                            {
+                                <option value="@area"></option>
+                            }
+                        </datalist>
+                        <span asp-validation-for="AreaGdi" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="AreaKey" class="control-label">Clave del área</label>
+                        <input asp-for="AreaKey" class="form-control" readonly />
+                        <span asp-validation-for="AreaKey" class="text-danger"></span>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="StorageType" class="control-label">Forma de almacenamiento</label>
+                        <input asp-for="StorageType" class="form-control" list="storageDataList"
+                               placeholder="Escribe o selecciona..."
+                               id="StorageInput"
+                               type="search">
+                        <datalist id="storageDataList">
+                            @foreach (var storage in ViewBag.StorageDataList as List<string>)
+                            {
+                                <option value="@storage"></option>
+                            }
+                        </datalist>
+                        <span asp-validation-for="StorageType" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="StorageTypeKey" class="control-label">Clave de la forma de almacenamiento</label>
+                        <input asp-for="StorageTypeKey" class="form-control" readonly />
+                        <span asp-validation-for="StorageTypeKey" class="text-danger"></span>
+                    </div>
+                </div>
+
+
+                
+                
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="DateIntoWarehouse" class="control-label">Fecha de ingreso al almacén</label>
+                        <input asp-for="DateIntoWarehouse" class="form-control" type="date" />
+                        <span asp-validation-for="DateIntoWarehouse" class="text-danger"></span>
+                    </div>
+                </div>
+               
+                
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="DateOutoWarehouse" class="control-label">Fecha de salida del almacén (embarque)</label>
+                        <input asp-for="DateOutoWarehouse" class="form-control" type="date" />
+                        <span asp-validation-for="DateOutoWarehouse" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="ManifestNumber" class="control-label">Folio / Núm. de manifiesto</label>
+                        <input asp-for="ManifestNumber" class="form-control" />
+                        <span asp-validation-for="ManifestNumber" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="WasteDestination" class="control-label">Destino de residuos de manejo especial</label>
+                        <input asp-for="WasteDestination" class="form-control" />
+                        <span asp-validation-for="WasteDestination" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="ReturnToClient" class="control-label">Retorno al cliente</label>
+                        <select asp-for="ReturnToClient" id=" ReturnToClientSelect" class="form-control" required>
+                            <option value="" disabled selected>Seleccione una opción</option>
+                            <option value="Si">Si</option>
+                            <option value="No">No</option>
+                            <option value="N/A">N/A</option>
+                        </select>
+                        <span asp-validation-for="ReturnToClient" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="WasteGeneratorNumber" class="control-label">Núm.generador de residuos </label>
+                        <input asp-for="WasteGeneratorNumber" class="form-control" />
+                        <span asp-validation-for="WasteGeneratorNumber" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="CollectorName" class="control-label">Nombre del transportista</label>
+                        <input asp-for="CollectorName" class="form-control" />
+                        <span asp-validation-for="CollectorName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="CollectionAuthorizationNumber" class="control-label">Núm. de autorización</label>
+                        <input asp-for="CollectionAuthorizationNumber" class="form-control" />
+                        <span asp-validation-for="CollectionAuthorizationNumber" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="CollectionCenterName" class="control-label">Nombre del Centro de Acopio</label>
+                        <input asp-for="CollectionCenterName" class="form-control" />
+                        <span asp-validation-for="CollectorName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="CollectionCenterAuthorizationNumber" class="control-label">Núm. de autorización del centro de acopio</label>
+                        <input asp-for="CollectionCenterAuthorizationNumber" class="form-control" />
+                        <span asp-validation-for="CollectionCenterAuthorizationNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ReuseCompanyName" class="control-label">Nombre empresa (Reutilización de RME)</label>
+                        <input asp-for="ReuseCompanyName" class="form-control" />
+                        <span asp-validation-for="ReuseCompanyName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ReuseCompanyAuthorizationNumber" class="control-label">Núm. de autorización de la empresa de reutilización</label>
+                        <input asp-for="ReuseCompanyAuthorizationNumber" class="form-control" />
+                        <span asp-validation-for="ReuseCompanyAuthorizationNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="FinalDisposalCompanyName" class="control-label">Nombre empresa (Disposición final)</label>
+                        <input asp-for="FinalDisposalCompanyName" class="form-control" />
+                        <span asp-validation-for="FinalDisposalCompanyName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="FinalDisposalAuthorizationNumber" class="control-label">Núm. de autorización de la empresa de disposición final</label>
+                        <input asp-for="FinalDisposalAuthorizationNumber" class="form-control" />
+                        <span asp-validation-for="FinalDisposalAuthorizationNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+            </div>
+           
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label asp-for="SealedManifests" class="control-label">Manifiesto sellado</label>
+                        <select asp-for="SealedManifests" id="SealedManifestsSelect" class="form-control" required>
+                            <option value="" disabled selected>Seleccione una opción</option>
+                            <option value="Si">Si</option>
+                            <option value="No">No</option>
+                            <option value="N/A">N/A</option>
+                        </select>
+                        <span asp-validation-for="SealedManifests" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label asp-for="Comments" class="control-label">Comentarios</label>
+                        <textarea asp-for="Comments" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Comments" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+
+        </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $('#partNumberInput').on('change', function () {
+            const partNumber = $(this).val();
+
+            $.ajax({
+                url: '@Url.Action("GetWasteData", controllerName)', // ✅ URL dinámica
+                type: 'GET',
+                data: { partNumber: partNumber },
+                success: function (response) {
+                    if (response.success) {
+                        $('#WasteKey').val(response.wasteKey);
+                        $('#WasteName').val(response.wasteName);
+                        $('#WasteNameGdi').val(response.wasteNameGdi);
+                        $('#Program').val(response.program);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error en AJAX:", error);
+                }
+            });
+        });
+
+        // Para Área (Correcciones)
+        $('#AreaInput').on('change', function () {
+            const areaName = $(this).val(); // 🟡 Obtener valor del input de área
+
+            $.ajax({
+                url: '@Url.Action("GetAreaData", controllerName)', // ✅ Acción correcta
+                type: 'GET',
+                data: { area: areaName }, // 🟡 Parámetro correcto
+                success: function (response) {
+                    if (response.success) {
+                        $('#AreaKey').val(response.areaKey); // 🔼 Campo correcto
+                    }
+                }
+            });
+        });
+
+        // Para Almacenamiento (Correcciones)
+        $('#StorageInput').on('change', function () {
+            const storageName = $(this).val(); // 🟡 Obtener valor del input de almacenamiento
+
+            $.ajax({
+                url: '@Url.Action("GetStorageData", controllerName)', // ✅ Acción correcta
+                type: 'GET',
+                data: { storageName: storageName }, // 🟡 Parámetro correcto
+                success: function (response) {
+                    if (response.success) {
+                        $('#StorageTypeKey').val(response.storageTypeKey); // 🔼 Corregir nombre de propiedad
+                    }
+                }
+            });
+        });
+
+
+    });
+</script>
+
+

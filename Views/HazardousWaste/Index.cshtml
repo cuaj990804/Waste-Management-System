@@ -1,0 +1,179 @@
+@model IEnumerable<SGA.Models.HazardousWaste>
+
+@{
+    ViewData["Title"] = "Administrar Residuos Peligrosos";
+}
+
+<link rel="stylesheet" href="~/css/buttons.css" asp-append-version="true" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<h1>Administrar Residuos Peligrosos</h1>
+
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Agregar Residuo
+    </a>
+</div>
+
+<table class="table table-striped table-hover" id="wastesTable">
+    <thead>
+        <tr>
+            <th>Clave</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Códigos CRETIB</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.WasteKey</td>
+                <td>@item.WasteName</td>
+                <td>@(item.WasteDescription ?? "-")</td>
+                <td>
+                    @if (item.HazardousWasteCretibs.Any())
+                    {
+                        <div class="d-flex gap-1">
+                            @foreach (var wc in item.HazardousWasteCretibs.OrderBy(x => x.Cretib.CretibKey))
+                            {
+                                <span class="badge bg-danger">@wc.Cretib.CretibKey</span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="text-muted">Sin códigos</span>
+                    }
+                </td>
+                <td>
+                    @if (item.IsActive)
+                    {
+                        <span class="badge bg-success">Activo</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Inactivo</span>
+                    }
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a asp-action="Edit" asp-route-id="@item.HazardousWasteId" class="btn btn-sm btn-warning">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <button type="button" class="btn btn-sm btn-info toggle-active-btn" data-id="@item.HazardousWasteId">
+                            <i class="bi bi-toggle-on"></i> @(item.IsActive ? "Desactivar" : "Activar")
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger delete-btn" data-id="@item.HazardousWasteId" data-name="@item.WasteName">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Inicializar DataTable
+        $('#wastesTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-MX.json'
+            },
+            order: [[0, 'asc']],
+            pageLength: 25
+        });
+
+        // Mostrar mensaje de éxito si existe
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: '@TempData["SuccessMessage"]',
+                confirmButtonText: 'Aceptar'
+            });
+            </text>
+        }
+
+        // Toggle Active/Inactive
+        $(document).on('click', '.toggle-active-btn', function () {
+            var id = $(this).data('id');
+            var button = $(this);
+
+            $.ajax({
+                url: '@Url.Action("ToggleActive", "HazardousWaste")',
+                type: 'POST',
+                data: { id: id },
+                success: function (result) {
+                    if (result.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Éxito!',
+                            text: 'Estado actualizado correctamente',
+                            confirmButtonText: 'Aceptar'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', result.message || 'Error al actualizar el estado.', 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Error', 'Ocurrió un error en la solicitud.', 'error');
+                }
+            });
+        });
+
+        // Eliminar
+        $(document).on('click', '.delete-btn', function () {
+            var id = $(this).data('id');
+            var name = $(this).data('name');
+
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: `¿Deseas eliminar el residuo "${name}"? Esta acción no se puede deshacer.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("Delete", "HazardousWaste")',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function (result) {
+                            if (result.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Eliminado',
+                                    text: 'Residuo eliminado correctamente',
+                                    confirmButtonText: 'Aceptar'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire('Error', result.message || 'Error al eliminar.', 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'Ocurrió un error en la solicitud.', 'error');
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>

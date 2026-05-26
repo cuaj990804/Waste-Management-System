@@ -1,0 +1,371 @@
+﻿@model SGA.Models.NonHazardou
+
+@{
+    ViewData["Title"] = "Create";
+    var controllerName = ViewContext.RouteData.Values["controller"]?.ToString() ?? "NonHazardous";
+    var moduleTitle = ViewBag.ModuleTitle as string ?? "Residuos no peligrosos";
+    var isReturnMaterial = string.Equals(controllerName, "ReturnMaterial", StringComparison.OrdinalIgnoreCase);
+    var headerGradient = isReturnMaterial
+        ? "linear-gradient(135deg, #9a3412 0%, #f97316 100%)"
+        : "linear-gradient(135deg, #14532d 0%, #16a34a 100%)";
+    var headerShadow = isReturnMaterial
+        ? "rgba(249, 115, 22, 0.14)"
+        : "rgba(22, 163, 74, 0.14)";
+}
+
+<style>
+    .custom-form-card {
+        max-width: 1200px;
+        margin: 0.5rem auto;
+        background: linear-gradient(180deg, #fff 0%, #fcfcfc 100%);
+        border: 1px solid #dbe2ea;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+    }
+
+    .form-label {
+        font-weight: 500;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+    }
+
+    .required-label::after {
+        content: " *";
+        color: #dc3545;
+        font-weight: 700;
+    }
+
+    .auto-label {
+        color: #6c757d;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem 1.25rem;
+    }
+
+    .top-row {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1.2fr 1fr 1fr;
+        gap: 1rem 1.25rem;
+    }
+
+    .form-grid-full {
+        grid-column: 1 / -1;
+    }
+
+    .form-control-custom {
+        width: 100%;
+        padding: 0.65rem 0.9rem;
+        font-size: 1rem;
+        border: 2px solid #ced4da;
+        border-radius: 0.5rem;
+        transition: border-color 0.15s ease-in-out;
+    }
+
+        .form-control-custom:focus {
+            border-color: #80bdff;
+            box-shadow: none;
+        }
+
+    .required-input {
+        border-left: 5px solid #dc3545;
+        background: #fffdfd;
+    }
+
+    .auto-input {
+        background: #f8f9fa;
+        color: #495057;
+    }
+
+    .form-hint {
+        margin-bottom: 0.7rem;
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    .btn-guardar {
+        width: 100%;
+        padding: 0.65rem;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .module-shell {
+        max-width: 1200px;
+        margin: 0.75rem auto 0;
+        padding: 0 0.75rem;
+    }
+
+    .module-header {
+        background: @headerGradient;
+        color: #fff;
+        border-radius: 20px 20px 0 0;
+        padding: 1rem 1.25rem;
+        box-shadow: 0 18px 32px @headerShadow;
+    }
+
+    .module-header h1 {
+        margin: 0;
+        font-size: 1.55rem;
+        font-weight: 700;
+    }
+
+    .module-header p {
+        margin: 0.25rem 0 0;
+        font-size: 0.92rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .module-card-body {
+        padding: 1.1rem 1.25rem 1.25rem;
+    }
+
+    .button-row {
+        grid-column: 1 / -1;
+    }
+
+    @@media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .top-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="module-shell">
+    <div class="module-header">
+        <h1>Registro @moduleTitle</h1>
+        <p>Captura ordenada con campos obligatorios visibles y datos autollenados.</p>
+    </div>
+
+    <div class="custom-form-card">
+        <div class="module-card-body">
+            <p class="form-hint mb-3">Los campos marcados con <span class="text-danger">*</span> son obligatorios.</p>
+
+            <form asp-action="Create" id="CreateForm" method="post" autocomplete="off">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-grid">
+                <div class="top-row">
+                    <div>
+                        <label asp-for="PartNumber" class="form-label required-label">Numero de parte</label>
+                        <input asp-for="PartNumber"
+                               class="form-control-custom required-input"
+                               list="partNumbersList"
+                               placeholder="Escribe o selecciona..."
+                               type="search"
+                               required>
+                        <datalist id="partNumbersList">
+                            @foreach (var part in ViewBag.PartNumberDataList as List<string>)
+                            {
+                                <option value="@part"></option>
+                            }
+                        </datalist>
+                        <span asp-validation-for="PartNumber" class="text-danger"></span>
+                    </div>
+
+                    <div>
+                        <label asp-for="WasteNameGdi" class="form-label auto-label">Nombre del material en GDI</label>
+                        <input asp-for="WasteNameGdi"
+                               class="form-control-custom auto-input"
+                               id="WasteNameGdi"
+                               readonly>
+                        <span asp-validation-for="WasteNameGdi" class="text-danger"></span>
+                    </div>
+
+                    <div>
+                        <label asp-for="Program" class="form-label auto-label">Programa</label>
+                        <input asp-for="Program"
+                               class="form-control-custom auto-input"
+                               id="Program"
+                               readonly>
+                        <span asp-validation-for="Program" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div>
+                    <label asp-for="AreaGdi" class="form-label required-label">Area</label>
+                    <input asp-for="AreaGdi"
+                           class="form-control-custom required-input"
+                           list="AreaDataList"
+                           placeholder="Escribe o selecciona..."
+                           type="search"
+                           required>
+                    <datalist id="AreaDataList">
+                        @foreach (var area in ViewBag.AreaDataList as List<string>)
+                        {
+                            <option value="@area"></option>
+                        }
+                    </datalist>
+                    <span asp-validation-for="AreaGdi" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <label asp-for="StorageType" class="form-label required-label">Tipo de almacenamiento</label>
+                    <input asp-for="StorageType"
+                           class="form-control-custom required-input"
+                           list="StorageDataList"
+                           placeholder="Escribe o selecciona..."
+                           type="search"
+                           required>
+                    <datalist id="StorageDataList">
+                        @foreach (var storage in ViewBag.StorageDataList as List<string>)
+                        {
+                            <option value="@storage"></option>
+                        }
+                    </datalist>
+                    <span asp-validation-for="StorageType" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <label asp-for="WasteWeight" class="form-label required-label">Peso (KG)</label>
+                    <input asp-for="WasteWeight"
+                           class="form-control-custom required-input"
+                           step="any"
+                           type="number"
+                           required>
+                    <span asp-validation-for="WasteWeight" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <label asp-for="WasteQuantity" class="form-label required-label">Cantidad</label>
+                    <input asp-for="WasteQuantity"
+                           class="form-control-custom required-input"
+                           type="number"
+                           required>
+                    <span asp-validation-for="WasteQuantity" class="text-danger"></span>
+                </div>
+
+                <div class="form-grid-full">
+                    <label asp-for="Comments" for="exampleFormControlTextarea1" class="form-label">Comentarios</label>
+                    <textarea asp-for="Comments" class="form-control" id="exampleFormControlTextarea1" rows="2"></textarea>
+                    <span asp-validation-for="Comments" class="text-danger"></span>
+                </div>
+
+                    <div class="d-flex justify-content-between button-row">
+                        <button type="button" id="btnVerHistorial" class="btn btn-dark btn-guardar me-2">Historial</button>
+                        <button type="submit" class="btn btn-primary btn-guardar">Guardar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+
+<div class="modal fade" id="historialModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Historial</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-0">
+                <!-- Quitamos padding para que la tabla ocupe todo el espacio -->
+                <!-- La vista parcial se cargará aquí -->
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(function () {
+        $('#PartNumber').on('change', function () {
+            const partNumber = $(this).val().trim();
+
+            if (!partNumber) {
+                $('#WasteNameGdi').val('');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetWasteData", controllerName)',
+                type: 'GET',
+                data: { partNumber: partNumber },
+                success: function (response) {
+                    if (response.success) {
+                        $('#WasteNameGdi').val(response.wasteNameGdi || '');
+                        $('#Program').val(response.program || '');
+                    } else {
+                        $('#WasteNameGdi').val('');
+                        $('#Program').val('');
+                    }
+                },
+                error: function () {
+                    $('#WasteNameGdi').val('');
+                    $('#Program').val('');
+                }
+            });
+        });
+
+        // Evento delegado para el botón Buscar
+        $(document).on('click', '#btnBuscar', function () {
+            var start = $('#startDate').val();
+            var end = $('#endDate').val();
+
+            // Mostrar spinner
+            $('#historialModal .modal-body').html(`
+                <div class="d-flex justify-content-center align-items-center" style="height: 200px">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+            `);
+
+            $.ajax({
+                url: '/@controllerName/Historial',
+                data: { startDate: start, endDate: end },
+                type: 'GET',
+                success: function(data) {
+                    $('#historialModal .modal-body').html(data);
+                    // Ajustar tamaño después de cargar contenido
+                    $('#historialModal').modal('handleUpdate');
+                },
+                error: function(xhr) {
+                    console.error('Error al buscar:', xhr.responseText);
+                    $('#historialModal .modal-body').html(
+                        '<div class="alert alert-danger m-3">Error al cargar los datos</div>'
+                    );
+                }
+            });
+        });
+
+        // Evento para el botón Ver Historial
+        $('#btnVerHistorial').click(function () {
+            var today = new Date().toISOString().split('T')[0];
+
+            // Mostrar spinner
+            $('#historialModal .modal-body').html(`
+                <div class="d-flex justify-content-center align-items-center" style="height: 200px">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+            `);
+
+            $('#historialModal').modal('show');
+
+            $.get('/@controllerName/Historial', { startDate: today, endDate: today }, function (data) {
+                $('#historialModal .modal-body').html(data);
+                // Ajustar tamaño después de cargar contenido
+                $('#historialModal').modal('handleUpdate');
+            }).fail(function() {
+                console.error('Error al cargar el historial');
+                $('#historialModal .modal-body').html(
+                    '<div class="alert alert-danger m-3">Error al cargar el historial</div>'
+                );
+            });
+        });
+
+        // Ajustar modal cuando cambia de tamaño
+        $('#historialModal').on('shown.bs.modal', function () {
+            $(this).modal('handleUpdate');
+        });
+    });
+</script>
